@@ -5,13 +5,15 @@
   </div>
   <div class="container">
     <transition
-      name="para"
+      :css="false"
       @before-enter="beforeEnter"
       @enter="enter"
       @after-enter="afterEnter"
       @before-leave="beforeLeave"
       @leave="leave"
       @after-leave="afterLeave"
+      @enter-cancelled="enterCancelled"
+      @leave-cancelled="leaveCancelled"
     >
       <p v-if="paraIsVisible">This is only sometimes visible...</p>
     </transition>
@@ -39,7 +41,9 @@ export default {
       animatedBlock: false,
       dialogIsVisible: false,
       paraIsVisible: false,
-      usersAreVisible: false
+      usersAreVisible: false,
+      enterInterval: null,
+      leaveInterval: null,
     };
   },
   methods: {
@@ -64,26 +68,57 @@ export default {
     beforeEnter(el) {
       console.log('beforeEnter');
       console.log(el);
+      el.style.opacity = 0;
     },
-    beforeLeave(el) {
-      console.log('beforeLeave');
-      console.log(el);
-    },
-    enter(el) {
+    /* There is a second argument "done", that can be used to let the next phase know when to start
+     * i.e. once "enter" is done, then and only then can "afterEnter" initialize */
+    enter(el, done) {
       console.log('enter');
       console.log(el);
+      let round = 1;
+      this.enterInterval = setInterval(() => {
+        el.style.opacity = round * 0.1;
+        round++;
+        if (round > 10) {
+          clearInterval(this.enterInterval);
+          done();
+        }
+      }, 20);
     },
     afterEnter(el) {
       console.log('afterEnter');
       console.log(el);
     },
-    leave(el) {
+    beforeLeave(el) {
+      console.log('beforeLeave');
+      console.log(el);
+      el.style.opacity = 1;
+    },
+    leave(el, done) {
       console.log("leave");
       console.log(el);
+      let round = 1;
+      this.leaveInterval = setInterval(() => {
+        el.style.opacity = 1 - round * 0.1;
+        round++;
+        if (round > 10) {
+          clearInterval(this.leaveInterval);
+          done();
+        }
+      }, 20);
     },
     afterLeave(el) {
       console.log("afterLeave");
       console.log(el);
+      el.style.opacity = 0;
+    },
+    enterCancelled(el) {
+      console.log(el);
+      clearInterval(this.enterInterval);
+    },
+    leaveCancelled(el) {
+      console.log(el);
+      clearInterval(this.leaveInterval);
     }
   }
 };
@@ -142,16 +177,6 @@ button:active {
   /* Moves object 150px to the left */
   /* transform: translateX(-150px); */
   animation: slide-scale 0.3s ease-out forwards;
-}
-
-.para-enter-active {
-  /*transition: all 0.3s ease-out;*/
-  animation: slide-scale 2s ease-out;
-}
-
-.para-leave-active {
-  animation: slide-scale 0.3s ease-out;
-  /*transition: all 0.3s ease-in;*/
 }
 
 .fade-button-enter-from,
