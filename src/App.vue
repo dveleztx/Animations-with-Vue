@@ -1,5 +1,8 @@
 <template>
   <div class="container">
+    <users-list></users-list>
+  </div>
+  <div class="container">
     <div class="block" :class="{ animate: animatedBlock }"></div>
     <button @click="animateBlock">Animate</button>
   </div>
@@ -35,7 +38,12 @@
 </template>
 
 <script>
+import UsersList from './components/UsersList.vue';
+
 export default {
+  components: {
+    UsersList
+  },
   data() {
     return {
       animatedBlock: false,
@@ -43,7 +51,7 @@ export default {
       paraIsVisible: false,
       usersAreVisible: false,
       enterInterval: null,
-      leaveInterval: null,
+      leaveInterval: null
     };
   },
   methods: {
@@ -95,7 +103,7 @@ export default {
       el.style.opacity = 1;
     },
     leave(el, done) {
-      console.log("leave");
+      console.log('leave');
       console.log(el);
       let round = 1;
       this.leaveInterval = setInterval(() => {
@@ -108,7 +116,7 @@ export default {
       }, 20);
     },
     afterLeave(el) {
-      console.log("afterLeave");
+      console.log('afterLeave');
       console.log(el);
       el.style.opacity = 0;
     },
