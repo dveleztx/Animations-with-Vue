@@ -1,13 +1,16 @@
 <template>
-  <div class="backdrop" @click="$emit('close')"></div>
-  <dialog open>
-    <slot></slot>
-  </dialog>
+  <div v-if="open" class="backdrop" @click="$emit('close')"></div>
+  <transition name="modal">
+    <dialog open v-if="open">
+      <slot></slot>
+    </dialog>
+  </transition>
 </template>
 
 <script scoped>
 export default {
-  emits: ['close'],
+  props: ['open'],
+  emits: ['close']
 };
 </script>
 
@@ -35,13 +38,20 @@ dialog {
   z-index: 100;
   border: none;
   /* This doesn't work for some reason, ongoing vue issue: https://github.com/vuejs/vue-next/issues/3304 */
-  animation: modal 0.3s ease-out forwards;
+  /* animation: modal 0.3s ease-out forwards; */
 }
 </style>
 
-<!-- Have a second styles tag for keyframes, because of bug above, this one unscoped -->
 <style>
-@keyframes modal {                                                                                                      
+.modal-enter-active {
+  animation: modal 0.3s ease-out;
+}
+
+.modal-leave-active {
+  animation: modal 0.3s ease-in reverse;
+}
+
+@keyframes modal {
   from {
     opacity: 0;
     transform: translateY(-50px) scale(0.9);
@@ -49,7 +59,7 @@ dialog {
 
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);;
+    transform: translateY(0) scale(1);
   }
 }
 </style>
